@@ -8,20 +8,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
-import React from 'react'
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut } from "lucide-react"
 import Navitems from "./NavItems"
+import { signOut } from "@/lib/actions/auth.actions"
 
-export const UserDropdown = () => {
+export const UserDropdown = ({user}:{user:User}) => {
     const router = useRouter();
-    const handleSignOut = () => {
-        // Add sign-out logic here (e.g., clear auth tokens)
+    const handleSignOut = async() => {
+        await signOut();
         router.push('/sign-in'); // Redirect to login page after sign-out
     }
-
-    const user = { name: "John Doe", email: "contact@e.com" }; 
+ 
   return (
     <DropdownMenu>
     <DropdownMenuTrigger asChild>
@@ -40,7 +39,7 @@ export const UserDropdown = () => {
         <DropdownMenuLabel>
         <div className="flex relative items-center gap-3 py-2" >
         <Avatar className="h-8 w-8">
-          <AvatarImage src="/path/to/avatar.jpg" alt="Avatar"/>
+          <AvatarImage src="public/public/assets/images/icons8-user-100.png" alt="Avatar"/>
           <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold" >
             {user.name[0]}
             </AvatarFallback>
