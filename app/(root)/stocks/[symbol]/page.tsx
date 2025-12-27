@@ -1,5 +1,12 @@
 import TradingViewWidget from "@/components/TradingViewWidget";
 import WatchlistButton from "@/components/WatchlistButton";
+import { auth } from "@/lib/better-auth/auth";
+import { headers } from "next/headers";
+import {
+  addToWatchlist,
+  getWatchlistSymbolsByEmail,
+  removeFromWatchlist,
+} from "@/lib/actions/watchlist.actions";
 import {
   SYMBOL_INFO_WIDGET_CONFIG,
   CANDLE_CHART_WIDGET_CONFIG,
@@ -8,10 +15,38 @@ import {
   COMPANY_PROFILE_WIDGET_CONFIG,
   COMPANY_FINANCIALS_WIDGET_CONFIG,
 } from "@/lib/constants";
+import { getCompanyProfile } from "@/lib/actions/finnhub.actions";
 
 export default async function StockDetails({ params }: StockDetailsPageProps) {
   const { symbol } = await params;
   const scriptUrl = `https://s3.tradingview.com/external-embedding/embed-widget-`;
+
+  const headersList = await headers();
+  const sessionHeaders: Record<string, string> = {};
+  for (const [key, value] of headersList.entries()) {
+    sessionHeaders[key] = value;
+  }
+  const session = await auth.api.getSession({ headers: sessionHeaders });
+  const userEmail = session?.user?.email;
+
+  const [watchlistSymbols, companyProfile] = await Promise.all([
+    userEmail ? getWatchlistSymbolsByEmail(userEmail) : Promise.resolve([]),
+    getCompanyProfile(symbol),
+  ]);
+
+  const isInWatchlist = userEmail ? watchlistSymbols.includes(symbol) : false;
+  const companyName = companyProfile?.name || symbol.toUpperCase();
+
+  const handleWatchlistChange = async (stockSymbol: string, adding: boolean) => {
+    "use server";
+    if (!userEmail) return;
+
+    if (adding) {
+      await addToWatchlist(userEmail, stockSymbol, companyName);
+    } else {
+      await removeFromWatchlist(userEmail, stockSymbol);
+    }
+  };
 
   return (
     <div className="flex min-h-screen p-4 md:p-6 lg:p-8">
@@ -42,7 +77,14 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
         {/* Right column */}
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <WatchlistButton symbol={symbol.toUpperCase()} company={symbol.toUpperCase()} isInWatchlist={false} />
+            {userEmail && (
+              <WatchlistButton
+                symbol={symbol.toUpperCase()}
+                company={companyName}
+                isInWatchlist={isInWatchlist}
+                onWatchlistChange={handleWatchlistChange}
+              />
+            )}
           </div>
 
           <TradingViewWidget

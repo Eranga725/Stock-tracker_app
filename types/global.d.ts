@@ -148,6 +148,26 @@ declare global {
         peRatio?: string;
     };
 
+    type WatchlistItem = {
+        _id: string;
+        userId: string;
+        symbol: string;
+        company: string;
+        addedAt: Date;
+    };
+
+    type StockWithTableData = WatchlistItem & {
+        currentPrice?: number;
+        change?: number;
+        changePercent?: number;
+        marketCap?: number;
+        peRatio?: number;
+        priceFormatted?: string;
+        changeFormatted?: string;
+        marketCapFormatted?: string;
+        peRatioFormatted?: string;
+    };
+
     type AlertsListProps = {
         alertData: Alert[] | undefined;
     };
