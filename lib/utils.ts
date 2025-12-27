@@ -116,6 +116,11 @@ export const formatPrice = (price: number) => {
   }).format(price);
 };
 
+export const formatPERatio = (peRatio: number) => {
+  if (!Number.isFinite(peRatio) || peRatio <= 0) return 'N/A';
+  return peRatio.toFixed(2);
+};
+
 export const formatDateToday = new Date().toLocaleDateString('en-US', {
   weekday: 'long',
   year: 'numeric',
