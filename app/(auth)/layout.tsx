@@ -15,7 +15,7 @@ const Layout =async ({ children }: { children: React.ReactNode }) => {
         <Link href="/" className="auth-logo">
           <Image
             src="/public/assets/images/icon.png"
-            alt="signalist logo"
+            alt="big stocks"
             width={140}
             height={32}
             className="h-8 w-auto"
